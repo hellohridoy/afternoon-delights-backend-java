@@ -3,7 +3,6 @@ package com.example.afternoonDelightBackedJava.AfternoonDelightBackedJava.contro
 import com.example.afternoonDelightBackedJava.AfternoonDelightBackedJava.dto.*;
 import com.example.afternoonDelightBackedJava.AfternoonDelightBackedJava.service.MealService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
