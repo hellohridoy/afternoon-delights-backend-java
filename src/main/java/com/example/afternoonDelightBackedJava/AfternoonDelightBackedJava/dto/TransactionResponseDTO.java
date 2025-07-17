@@ -15,6 +15,7 @@ public class TransactionResponseDTO {
     private Long id;
     private Long employeeId;
     private Long mealId;
+    private String mealName;
     private BigDecimal amount;
     private LocalDate transactionDate;
     private String description;

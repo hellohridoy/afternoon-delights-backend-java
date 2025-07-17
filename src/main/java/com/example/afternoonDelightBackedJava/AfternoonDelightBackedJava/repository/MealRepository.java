@@ -14,8 +14,11 @@ import java.util.Optional;
 @Repository
 public interface MealRepository extends JpaRepository<Meal, Long> {
     List<Meal> findByMealDateBetween(LocalDate startDate, LocalDate endDate);
+
     List<Meal> findByMealDateAndFoodItem(LocalDate date, FoodItem foodItem);
+
     List<Meal> findByMealDateOrderByCreatedAtDesc(LocalDate mealDate);
+
     Optional<Meal> findByMealDate(LocalDate date);
 
     boolean existsByMealDate(LocalDate date);
