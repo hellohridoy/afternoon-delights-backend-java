@@ -1,17 +1,14 @@
 package com.example.afternoonDelightBackedJava.AfternoonDelightBackedJava.entity;
 
 import com.example.afternoonDelightBackedJava.AfternoonDelightBackedJava.emums.Role;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Type;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 
 @Entity
 @Table(name = "employees")
@@ -20,7 +17,6 @@ import java.util.Map;
 @AllArgsConstructor
 
 public class Employee {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

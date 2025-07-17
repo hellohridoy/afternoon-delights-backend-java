@@ -89,4 +89,32 @@ public class TransactionServiceImpl implements TransactionService {
     private TransactionResponseDTO mapToResponseDTO(Transaction transaction) {
         return modelMapper.map(transaction, TransactionResponseDTO.class);
     }
+
+    public List<TransactionResponseDTO> getTransactionHistory(String pin, int months) {
+        LocalDate endDate = LocalDate.now();
+        LocalDate startDate = endDate.minusMonths(months);
+
+        List<Transaction> transactions = transactionRepository
+                .findByEmployeePinAndTransactionDateBetween(pin, startDate, endDate);
+
+        return transactions.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+    
+    @Override
+    public TransactionResponseDTO convertToDTO(Transaction transaction) {
+        TransactionResponseDTO dto = new TransactionResponseDTO();
+        dto.setId(transaction.getId());
+        dto.setAmount(transaction.getAmount());
+        dto.setTransactionDate(transaction.getTransactionDate());
+        dto.setDescription(transaction.getDescription());
+
+        if (transaction.getMeal() != null) {
+            dto.setMealId(transaction.getMeal().getId());
+            dto.setMealName(transaction.getMeal().getFoodItem().getName());
+        }
+
+        return dto;
+    }
 }

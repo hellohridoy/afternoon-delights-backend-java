@@ -1,7 +1,11 @@
 package com.example.afternoonDelightBackedJava.AfternoonDelightBackedJava.controller;
 
-import com.example.afternoonDelightBackedJava.AfternoonDelightBackedJava.dto.EmployeePersonalInfoDto;
+
+import com.example.afternoonDelightBackedJava.AfternoonDelightBackedJava.dto.EmployeeDTO;
+import com.example.afternoonDelightBackedJava.AfternoonDelightBackedJava.dto.EmployeePinDTO;
+import com.example.afternoonDelightBackedJava.AfternoonDelightBackedJava.dto.TransactionResponseDTO;
 import com.example.afternoonDelightBackedJava.AfternoonDelightBackedJava.service.EmployeeService;
+import com.example.afternoonDelightBackedJava.AfternoonDelightBackedJava.service.TransactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -15,26 +19,27 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 public class EmployeeRestController {
-
+    
+    private final TransactionService transactionService;
     private final EmployeeService employeeService;
 
     @GetMapping("/api/employees/employee-infos")
-    public ResponseEntity<List<EmployeePersonalInfoDto>> getAllEmployees() {
+    public ResponseEntity<List<EmployeeDTO>> getAllEmployees() {
         return ResponseEntity.ok(employeeService.getAllEmployees());
     }
 
     @GetMapping("/api/employees/employee-infos/{username}")
-    public ResponseEntity<EmployeePersonalInfoDto> getEmployeeByUsername(@PathVariable String username) {
+    public ResponseEntity<EmployeeDTO> getEmployeeByUsername(@PathVariable String username) {
         return ResponseEntity.ok(employeeService.getByUsername(username));
     }
 
     @GetMapping("/api/employees/employee-infos/by-pin/{pin}")
-    public ResponseEntity<EmployeePersonalInfoDto> getEmployeeByPin(@PathVariable String pin) {
+    public ResponseEntity<EmployeeDTO> getEmployeeByPin(@PathVariable String pin) {
         return ResponseEntity.ok(employeeService.getByPin(pin));
     }
 
     @PostMapping("/api/employees/employee-infos")
-    public ResponseEntity<EmployeePersonalInfoDto> createEmployee(@RequestBody EmployeePersonalInfoDto dto) {
+    public ResponseEntity<EmployeeDTO> createEmployee(@RequestBody EmployeeDTO dto) {
         return new ResponseEntity<>(employeeService.createEmployee(dto), HttpStatus.CREATED);
     }
 
@@ -51,7 +56,7 @@ public class EmployeeRestController {
 
     @PostMapping("/api/employees/employee-infos/by-pin/{pin}/upload-picture")
     public ResponseEntity<String> uploadPictureByPin(@PathVariable String pin,
-                                                @RequestParam("file") MultipartFile file) {
+                                                     @RequestParam("file") MultipartFile file) {
         try {
             employeeService.uploadProfilePictureByPin(pin, file);
             return ResponseEntity.ok("Profile picture uploaded");
@@ -68,4 +73,24 @@ public class EmployeeRestController {
                 .contentType(MediaType.parseMediaType(imageType))
                 .body(image);
     }
+
+    @GetMapping("/api/employees/employee-infos/{pin}/transactions")
+    public ResponseEntity<List<TransactionResponseDTO>> getTransactionHistory(
+            @PathVariable String pin,
+            @RequestParam(defaultValue = "1") int months) {
+
+        if (months < 1 || months > 24) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        return ResponseEntity.ok(transactionService.getTransactionHistory(pin, months));
+    }
+
+    @GetMapping("/api/employees/employee-infos/pins")
+    public ResponseEntity<List<EmployeePinDTO>> getEmployeePins(
+            @RequestParam(required = false) String search) {
+        List<EmployeePinDTO> list = employeeService.getAllEmployeePins(search);
+        return ResponseEntity.ok(list);
+    }
+
 }
