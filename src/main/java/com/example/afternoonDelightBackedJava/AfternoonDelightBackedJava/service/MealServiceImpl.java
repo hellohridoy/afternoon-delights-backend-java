@@ -1,9 +1,9 @@
 package com.example.afternoonDelightBackedJava.AfternoonDelightBackedJava.service;
 
-
 import com.example.afternoonDelightBackedJava.AfternoonDelightBackedJava.dto.*;
 import com.example.afternoonDelightBackedJava.AfternoonDelightBackedJava.entity.*;
 import com.example.afternoonDelightBackedJava.AfternoonDelightBackedJava.repository.*;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -22,75 +22,57 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class MealServiceImpl implements MealService {
 
-    
     private final MealRepository mealRepository;
-     private final FoodItemRepository foodItemRepository;
-     private final TransactionRepository transactionRepository;
-     private final EmployeeRepository employeeRepository;
-     private final MealParticipationRepository participationRepository;
-     private final TransactionService transactionService;
-     private final ModelMapper modelMapper;
+    private final FoodItemRepository foodItemRepository;
+    private final TransactionRepository transactionRepository;
+    private final EmployeeRepository employeeRepository;
+    private final MealParticipationRepository participationRepository;
+    private final TransactionService transactionService;
+    private final ModelMapper modelMapper;
 
     @Override
     @Transactional
-    public MealResponseDTO createMeal(MealRequestDTO mealRequestDTO) {
-        // Check if meal already exists for this date
-        if (mealRepository.existsByMealDate(mealRequestDTO.getMealDate())) {
-            throw new IllegalStateException("Meal already exists for date: " + mealRequestDTO.getMealDate());
-        }
-
+    public Meal createMeal(MealCreationDTO mealDTO) {
         // Find or create food item
-        FoodItem foodItem = foodItemRepository.findByName(mealRequestDTO.getFoodItemName())
+        FoodItem foodItem = foodItemRepository.findByName(mealDTO.getFoodItem())
                 .orElseGet(() -> {
-                    FoodItem newFoodItem = new FoodItem();
-                    newFoodItem.setName(mealRequestDTO.getFoodItemName());
-                    return foodItemRepository.save(newFoodItem);
+                    FoodItem newItem = new FoodItem();
+                    newItem.setName(mealDTO.getFoodItem());
+                    return foodItemRepository.save(newItem);
                 });
 
-        // Create meal entity
+        // Create meal
         Meal meal = new Meal();
-        meal.setMealDate(mealRequestDTO.getMealDate());
-        meal.setFoodItem(foodItem);
-        meal.setTotalCost(mealRequestDTO.getTotalCost());
-        meal.setIsTotalCostFixed(true);
+        meal.setMealDate(mealDTO.getMealDate());
+        meal.setFoodItem(foodItem);  // Set the FoodItem object
+        meal.setTotalCost(BigDecimal.valueOf(mealDTO.getTotalCost()));
         meal.setCreatedAt(LocalDateTime.now());
         meal.setUpdatedAt(LocalDateTime.now());
 
-        // Calculate per head cost
-        int participantCount = mealRequestDTO.getParticipants().size();
+        // Calculate participants and per-head cost
+        List<String> participants = mealDTO.getParticipants();
+        int participantCount = participants != null ? participants.size() : 0;
         meal.setTotalParticipants(participantCount);
 
         BigDecimal perHeadCost = participantCount > 0 ?
-                mealRequestDTO.getTotalCost().divide(BigDecimal.valueOf(participantCount), 2, RoundingMode.HALF_UP) :
+                meal.getTotalCost().divide(BigDecimal.valueOf(participantCount), 2, RoundingMode.HALF_UP) :
                 BigDecimal.ZERO;
-
         meal.setPerHeadCost(perHeadCost);
 
-        // Save meal first to generate ID
+        // Save meal first
         meal = mealRepository.save(meal);
 
-        // Process participants and create transactions
-        List<TransactionResponseDTO> transactions = new ArrayList<>();
-        for (String pin : mealRequestDTO.getParticipants()) {
-            Employee employee = employeeRepository.findByPin(pin)
-                    .orElseThrow(() -> new RuntimeException("Employee not found with PIN: " + pin));
-
-            // Create participation record
-            createParticipation(meal, employee);
-
-            // Create debit transaction
-            TransactionDTO transactionDTO = new TransactionDTO();
-            transactionDTO.setEmployeeId(employee.getId());
-            transactionDTO.setMealId(meal.getId());
-            transactionDTO.setAmount(perHeadCost.negate()); // Negative for deduction
-            transactionDTO.setTransactionDate(LocalDate.now());
-
-            transactions.add(transactionService.createTransaction(transactionDTO));
+        // Process participants if any
+        if (participants != null && !participants.isEmpty()) {
+            for (String pin : participants) {
+                Employee employee = employeeRepository.findByPin(pin)
+                        .orElseThrow(() -> new RuntimeException("Employee not found with PIN: " + pin));
+                addParticipant(meal, employee);
+            }
         }
 
-        return buildMealResponse(meal, transactions);
+        return meal;
     }
-
     @Override
     public MealResponseDTO getMealByDate(LocalDate date) {
         Meal meal = mealRepository.findByMealDate(date)
@@ -108,7 +90,6 @@ public class MealServiceImpl implements MealService {
 
         return response;
     }
-
 
     @Override
     @Transactional
@@ -436,6 +417,7 @@ public class MealServiceImpl implements MealService {
 
         return results;
     }
+
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Long processDailyMeal(DailyMealDTO dailyMeal) {
         // Find or create food item
@@ -457,7 +439,10 @@ public class MealServiceImpl implements MealService {
         meal.setMealDate(dailyMeal.getDate());
         meal.setFoodItem(foodItem);
         meal.setPerHeadCost(perHeadCost);
-        meal.setTotalParticipants(0);
+        meal.setTotalParticipants(participantCount);
+        meal.setTotalCost(dailyMeal.getTotalCost());
+        meal.setCreatedAt(LocalDateTime.now());
+        meal.setUpdatedAt(LocalDateTime.now());
         meal = mealRepository.save(meal);
 
         // Process participants
@@ -487,7 +472,6 @@ public class MealServiceImpl implements MealService {
             transactionRepository.save(transaction);
         }
 
-        meal.setTotalParticipants(uniquePins.size());
         return meal.getId();
     }
 
@@ -509,6 +493,7 @@ public class MealServiceImpl implements MealService {
         }
         return responses;
     }
+
     private Meal createOrUpdateMeal(MealRequestDTO mealDTO) {
         // Check if meal exists for this date
         Optional<Meal> existingMeal = mealRepository.findByMealDate(mealDTO.getMealDate());

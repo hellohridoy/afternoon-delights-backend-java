@@ -1,6 +1,7 @@
 package com.example.afternoonDelightBackedJava.AfternoonDelightBackedJava.controller;
 
 import com.example.afternoonDelightBackedJava.AfternoonDelightBackedJava.dto.*;
+import com.example.afternoonDelightBackedJava.AfternoonDelightBackedJava.entity.Meal;
 import com.example.afternoonDelightBackedJava.AfternoonDelightBackedJava.service.MealService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -19,11 +20,11 @@ public class MealRestController {
     private final MealService mealService;
 
     @PostMapping("/api/meals/meals-infos")
-    public ResponseEntity<MealResponseDTO> createMeal(@RequestBody MealRequestDTO mealRequestDTO) {
-        MealResponseDTO response = mealService.createMeal(mealRequestDTO);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    public ResponseEntity<?> createMeal(@RequestBody MealCreationDTO mealDTO) {
+        // Use payer PIN from request body instead of request parameter
+        Meal createdMeal = mealService.createMeal(mealDTO);
+        return new ResponseEntity<>(createdMeal, HttpStatus.CREATED);
     }
-
     @PutMapping("/api/meals/meals-infos/{id}")
     public ResponseEntity<MealResponseDTO> updateMeal(
             @PathVariable Long id,

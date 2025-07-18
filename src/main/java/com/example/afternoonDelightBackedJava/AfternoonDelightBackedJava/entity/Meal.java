@@ -1,18 +1,27 @@
 package com.example.afternoonDelightBackedJava.AfternoonDelightBackedJava.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-
+@Data
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "meals")
 public class Meal {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "employee_id", nullable = false)
+//    private Employee employee;
 
     @Column(nullable = false)
     private LocalDate mealDate;
@@ -39,14 +48,18 @@ public class Meal {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "date")
+    private LocalDate date;
+
     @OneToMany(mappedBy = "meal", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Transaction> transactions;
 
     @OneToMany(mappedBy = "meal", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<MealParticipation> mealParticipationList;
 
-    // Constructors
-    public Meal() {}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by")
+    private Employee createdBy;  // Optional field, can be null
 
     public Meal(LocalDate mealDate, FoodItem foodItem, BigDecimal perHeadCost) {
         this.mealDate = mealDate;
@@ -83,7 +96,13 @@ public class Meal {
         this.totalCost = totalCost;
         this.updatedAt = LocalDateTime.now();
     }
+    public LocalDate getDate() {
+        return date;
+    }
 
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
     public Boolean getIsTotalCostFixed() { return isTotalCostFixed; }
     public void setIsTotalCostFixed(Boolean isTotalCostFixed) { this.isTotalCostFixed = isTotalCostFixed; }
 

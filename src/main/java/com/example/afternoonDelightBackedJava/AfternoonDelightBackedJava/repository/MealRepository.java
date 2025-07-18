@@ -2,6 +2,7 @@ package com.example.afternoonDelightBackedJava.AfternoonDelightBackedJava.reposi
 
 import com.example.afternoonDelightBackedJava.AfternoonDelightBackedJava.entity.FoodItem;
 import com.example.afternoonDelightBackedJava.AfternoonDelightBackedJava.entity.Meal;
+import com.example.afternoonDelightBackedJava.AfternoonDelightBackedJava.entity.MealParticipation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,12 +14,9 @@ import java.util.Optional;
 
 @Repository
 public interface MealRepository extends JpaRepository<Meal, Long> {
+    
     List<Meal> findByMealDateBetween(LocalDate startDate, LocalDate endDate);
-
-    List<Meal> findByMealDateAndFoodItem(LocalDate date, FoodItem foodItem);
-
-    List<Meal> findByMealDateOrderByCreatedAtDesc(LocalDate mealDate);
-
+    
     Optional<Meal> findByMealDate(LocalDate date);
 
     boolean existsByMealDate(LocalDate date);

@@ -29,4 +29,8 @@ public class MealParticipation {
 
     @Column(name = "participation_date")
     private LocalDate participationDate;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by")
+    private Employee createdBy;
 }

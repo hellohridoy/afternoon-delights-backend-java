@@ -59,4 +59,5 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             "WHERE t.amount > 0 AND t.transactionDate BETWEEN :start AND :end")
     BigDecimal sumCreditsBetweenDates(@Param("start") LocalDate start,
                                       @Param("end") LocalDate end);
+
 }
