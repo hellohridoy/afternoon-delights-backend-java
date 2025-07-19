@@ -3,7 +3,6 @@ package com.example.afternoonDelightBackedJava.AfternoonDelightBackedJava.servic
 import com.example.afternoonDelightBackedJava.AfternoonDelightBackedJava.dto.*;
 import com.example.afternoonDelightBackedJava.AfternoonDelightBackedJava.entity.*;
 import com.example.afternoonDelightBackedJava.AfternoonDelightBackedJava.repository.*;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;

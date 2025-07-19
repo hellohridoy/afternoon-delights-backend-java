@@ -19,7 +19,6 @@ import java.util.List;
  * REST Controller for employee balance operations
  */
 @RestController
-@RequestMapping("/api/employees/balance")
 @RequiredArgsConstructor
 public class EmployeeBalanceRestController {
 
@@ -28,7 +27,7 @@ public class EmployeeBalanceRestController {
     /**
      * Get balance statistics for all active employees
      */
-    @GetMapping("/statistics")
+    @GetMapping("/api/employees/balance/statistics")
     public ResponseEntity<BalanceStatisticsDTO> getBalanceStatistics() {
         BalanceStatisticsDTO statistics = balanceService.getBalanceStatistics();
         return ResponseEntity.ok(statistics);
@@ -37,7 +36,7 @@ public class EmployeeBalanceRestController {
     /**
      * Get employees with balance less than or equal to specified amount
      */
-    @GetMapping("/less-than-equal/{maxBalance}")
+    @GetMapping("/api/employees/balance/less-than-equal/{maxBalance}")
     public ResponseEntity<List<EmployeeDTO>> getEmployeesWithBalanceLessThanEqual(
             @PathVariable BigDecimal maxBalance) {
         List<EmployeeDTO> employees = balanceService.getEmployeesWithBalanceLessThanEqual(maxBalance);
@@ -47,7 +46,7 @@ public class EmployeeBalanceRestController {
     /**
      * Get employees with balance greater than or equal to specified amount
      */
-    @GetMapping("/greater-than-equal/{minBalance}")
+    @GetMapping("/api/employees/balance/greater-than-equal/{minBalance}")
     public ResponseEntity<List<EmployeeDTO>> getEmployeesWithBalanceGreaterThanEqual(
             @PathVariable BigDecimal minBalance) {
         List<EmployeeDTO> employees = balanceService.getEmployeesWithBalanceGreaterThanEqual(minBalance);
@@ -57,7 +56,7 @@ public class EmployeeBalanceRestController {
     /**
      * Get employees with balance between two amounts
      */
-    @GetMapping("/between")
+    @GetMapping("/api/employees/balance/between")
     public ResponseEntity<List<EmployeeDTO>> getEmployeesWithBalanceBetween(
             @RequestParam BigDecimal minBalance,
             @RequestParam BigDecimal maxBalance) {
@@ -68,7 +67,7 @@ public class EmployeeBalanceRestController {
     /**
      * Get total balance of all active employees
      */
-    @GetMapping("/total")
+    @GetMapping("/api/employees/balance/total")
     public ResponseEntity<BigDecimal> getTotalActiveEmployeeBalances() {
         BigDecimal total = balanceService.getTotalActiveEmployeeBalances();
         return ResponseEntity.ok(total);
@@ -77,7 +76,7 @@ public class EmployeeBalanceRestController {
     /**
      * Get employees with low balance (below threshold)
      */
-    @GetMapping("/low/{threshold}")
+    @GetMapping("/api/employees/balance/low/{threshold}")
     public ResponseEntity<List<EmployeeDTO>> getEmployeesWithLowBalance(
             @PathVariable BigDecimal threshold) {
         List<EmployeeDTO> employees = balanceService.getEmployeesWithLowBalance(threshold);
@@ -87,7 +86,7 @@ public class EmployeeBalanceRestController {
     /**
      * Get employees with high balance (above threshold)
      */
-    @GetMapping("/high/{threshold}")
+    @GetMapping("/api/employees/balance/high/{threshold}")
     public ResponseEntity<List<EmployeeDTO>> getEmployeesWithHighBalance(
             @PathVariable BigDecimal threshold) {
         List<EmployeeDTO> employees = balanceService.getEmployeesWithHighBalance(threshold);
@@ -97,7 +96,7 @@ public class EmployeeBalanceRestController {
     /**
      * Update balance for a single employee
      */
-    @PutMapping("/update/{pin}")
+    @PutMapping("/api/employees/balance/update/{pin}")
     public ResponseEntity<String> updateEmployeeBalance(
             @PathVariable String pin,
             @RequestParam BigDecimal amount) {
@@ -112,7 +111,7 @@ public class EmployeeBalanceRestController {
     /**
      * Get current balance for an employee
      */
-    @GetMapping("/{pin}")
+    @GetMapping("/api/employees/balance/{pin}")
     public ResponseEntity<BigDecimal> getEmployeeBalance(@PathVariable String pin) {
         try {
             BigDecimal balance = balanceService.getEmployeeBalance(pin);
@@ -125,7 +124,7 @@ public class EmployeeBalanceRestController {
     /**
      * Bulk update balances for multiple employees
      */
-    @PostMapping("/bulk-update")
+    @PostMapping("/api/employees/balance/bulk-update")
     public ResponseEntity<BalanceBulkUpdateResult> bulkUpdateBalances(
             @Valid @RequestBody BulkBalanceUpdateRequestDTO request) {
         BalanceBulkUpdateResult result = balanceService.updateBalancesForEmployees(request.getUpdates());
@@ -135,7 +134,7 @@ public class EmployeeBalanceRestController {
     /**
      * Generate balance report for all employees
      */
-    @GetMapping("/report")
+    @GetMapping("/api/employees/balance/report")
     public ResponseEntity<List<BalanceReportDTO>> generateBalanceReport() {
         List<BalanceReportDTO> report = balanceService.generateBalanceReport();
         return ResponseEntity.ok(report);
@@ -144,7 +143,7 @@ public class EmployeeBalanceRestController {
     /**
      * Get count of employees with negative balance
      */
-    @GetMapping("/negative/count")
+    @GetMapping("/api/employees/balance/negative/count")
     public ResponseEntity<Long> getNegativeBalanceCount() {
         Long count = balanceService.getEmployeesWithNegativeBalanceCount();
         return ResponseEntity.ok(count);
@@ -153,7 +152,7 @@ public class EmployeeBalanceRestController {
     /**
      * Get count of employees with zero balance
      */
-    @GetMapping("/zero/count")
+    @GetMapping("/api/employees/balance/zero/count")
     public ResponseEntity<Long> getZeroBalanceCount() {
         Long count = balanceService.getEmployeesWithZeroBalanceCount();
         return ResponseEntity.ok(count);
@@ -162,7 +161,7 @@ public class EmployeeBalanceRestController {
     /**
      * Adjust all negative balances to zero
      */
-    @PostMapping("/adjust-negative")
+    @PostMapping("/api/employees/balance/adjust-negative")
     public ResponseEntity<String> adjustNegativeBalancesToZero() {
         try {
             balanceService.adjustNegativeBalancesToZero();
@@ -175,7 +174,7 @@ public class EmployeeBalanceRestController {
     /**
      * Get employees requiring balance adjustment
      */
-    @GetMapping("/adjustment-required/{minimumBalance}")
+    @GetMapping("/api/employees/balance/adjustment-required/{minimumBalance}")
     public ResponseEntity<List<EmployeeDTO>> getEmployeesRequiringBalanceAdjustment(
             @PathVariable BigDecimal minimumBalance) {
         List<EmployeeDTO> employees = balanceService.getEmployeesRequiringBalanceAdjustment(minimumBalance);

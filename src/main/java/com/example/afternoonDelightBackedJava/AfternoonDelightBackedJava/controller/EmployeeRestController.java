@@ -16,29 +16,28 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/employees")
 @RequiredArgsConstructor
 public class EmployeeRestController {
 
     private final TransactionService transactionService;
     private final EmployeeService employeeService;
 
-    @GetMapping("/employee-infos")
+    @GetMapping("/api/v1/employees/employee-infos")
     public ResponseEntity<List<EmployeeDTO>> getAllEmployees() {
         return ResponseEntity.ok(employeeService.getAllEmployees());
     }
 
-    @GetMapping("/employee-infos/by-username/{username}")
+    @GetMapping("/api/v1/employees/employee-infos/by-username/{username}")
     public ResponseEntity<EmployeeDTO> getEmployeeByUsername(@PathVariable String username) {
         return ResponseEntity.ok(employeeService.getByUsername(username));
     }
 
-    @GetMapping("/employee-infos/by-pin/{pin}")
+    @GetMapping("/api/v1/employees/employee-infos/by-pin/{pin}")
     public ResponseEntity<EmployeeDTO> getEmployeeByPin(@PathVariable String pin) {
         return ResponseEntity.ok(employeeService.getByPin(pin));
     }
 
-    @PostMapping("/employee-infos")
+    @PostMapping("/api/v1/employees/employee-infos")
     public ResponseEntity<?> createEmployee(@Valid @RequestBody EmployeeCreationDTO dto) {
         try {
             EmployeeDTO createdEmployee = employeeService.createEmployee(dto);
@@ -49,7 +48,7 @@ public class EmployeeRestController {
         }
     }
 
-    @PostMapping("/employee-infos/by-username/{username}/upload-picture")
+    @PostMapping("/api/v1/employees/employee-infos/by-username/{username}/upload-picture")
     public ResponseEntity<?> uploadPictureByUsername(
             @PathVariable String username,
             @RequestParam("file") MultipartFile file) {
@@ -62,7 +61,7 @@ public class EmployeeRestController {
         }
     }
 
-    @PostMapping("/employee-infos/by-pin/{pin}/upload-picture")
+    @PostMapping("/api/v1/employees/employee-infos/by-pin/{pin}/upload-picture")
     public ResponseEntity<?> uploadPictureByPin(
             @PathVariable String pin,
             @RequestParam("file") MultipartFile file) {
@@ -75,7 +74,7 @@ public class EmployeeRestController {
         }
     }
 
-    @GetMapping("/employee-infos/by-username/{username}/profile-picture")
+    @GetMapping("/api/v1/employees/employee-infos/by-username/{username}/profile-picture")
     public ResponseEntity<byte[]> getProfilePictureByUsername(@PathVariable String username) {
         byte[] image = employeeService.getProfilePicture(username);
         String imageType = employeeService.getImageType(username);
@@ -84,7 +83,7 @@ public class EmployeeRestController {
                 .body(image);
     }
 
-    @GetMapping("/employee-infos/by-pin/{pin}/profile-picture")
+    @GetMapping("/api/v1/employees/employee-infos/by-pin/{pin}/profile-picture")
     public ResponseEntity<byte[]> getProfilePictureByPin(@PathVariable String pin) {
         byte[] image = employeeService.getProfilePictureByPin(pin);
         String imageType = employeeService.getImageTypeByPin(pin);
@@ -93,7 +92,7 @@ public class EmployeeRestController {
                 .body(image);
     }
 
-    @GetMapping("/employee-infos/by-pin/{pin}/transactions")
+    @GetMapping("/api/v1/employees/employee-infos/by-pin/{pin}/transactions")
     public ResponseEntity<?> getTransactionHistory(
             @PathVariable String pin,
             @RequestParam(defaultValue = "1") int months) {
@@ -106,7 +105,7 @@ public class EmployeeRestController {
         return ResponseEntity.ok(transactionService.getTransactionHistory(pin, months));
     }
 
-    @GetMapping("/employee-infos/pins")
+    @GetMapping("/api/v1/employees/employee-infos/pins")
     public ResponseEntity<List<EmployeePinDTO>> getEmployeePins(
             @RequestParam(required = false) String search) {
         return ResponseEntity.ok(employeeService.getAllEmployeePins(search));

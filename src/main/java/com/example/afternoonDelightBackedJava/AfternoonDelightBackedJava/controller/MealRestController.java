@@ -15,7 +15,6 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 public class MealRestController {
-
     
     private final MealService mealService;
 
