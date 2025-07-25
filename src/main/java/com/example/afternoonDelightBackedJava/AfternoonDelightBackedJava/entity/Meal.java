@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+
 @Data
 @Entity
 @NoArgsConstructor
@@ -18,10 +19,6 @@ public class Meal {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "employee_id", nullable = false)
-//    private Employee employee;
 
     @Column(nullable = false)
     private LocalDate mealDate;
@@ -48,8 +45,9 @@ public class Meal {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "date")
-    private LocalDate date;
+    // Remove the duplicate 'date' field - use mealDate consistently
+    // @Column(name = "date")  // Remove this duplicate field
+    // private LocalDate date;
 
     @OneToMany(mappedBy = "meal", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Transaction> transactions;
@@ -59,7 +57,7 @@ public class Meal {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by")
-    private Employee createdBy;  // Optional field, can be null
+    private Employee createdBy;
 
     public Meal(LocalDate mealDate, FoodItem foodItem, BigDecimal perHeadCost) {
         this.mealDate = mealDate;
@@ -69,52 +67,41 @@ public class Meal {
         this.updatedAt = LocalDateTime.now();
     }
 
-    // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    @PrePersist
+    protected void onCreate() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+        updatedAt = LocalDateTime.now();
+    }
 
-    public LocalDate getMealDate() { return mealDate; }
-    public void setMealDate(LocalDate mealDate) { this.mealDate = mealDate; }
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 
-    public FoodItem getFoodItem() { return foodItem; }
-    public void setFoodItem(FoodItem foodItem) { this.foodItem = foodItem; }
-
-    public BigDecimal getPerHeadCost() { return perHeadCost; }
+    // Custom setters that update the timestamp
     public void setPerHeadCost(BigDecimal perHeadCost) {
         this.perHeadCost = perHeadCost;
         this.updatedAt = LocalDateTime.now();
     }
 
-    public Integer getTotalParticipants() { return totalParticipants; }
     public void setTotalParticipants(Integer totalParticipants) {
         this.totalParticipants = totalParticipants;
         this.updatedAt = LocalDateTime.now();
     }
 
-    public BigDecimal getTotalCost() { return totalCost; }
     public void setTotalCost(BigDecimal totalCost) {
         this.totalCost = totalCost;
         this.updatedAt = LocalDateTime.now();
     }
-    public LocalDate getDate() {
-        return date;
+
+    // Convenience method to get participations
+    public List<MealParticipation> getParticipations() {
+        return mealParticipationList;
     }
 
-    public void setDate(LocalDate date) {
-        this.date = date;
+    public void setParticipations(List<MealParticipation> participations) {
+        this.mealParticipationList = participations;
     }
-    public Boolean getIsTotalCostFixed() { return isTotalCostFixed; }
-    public void setIsTotalCostFixed(Boolean isTotalCostFixed) { this.isTotalCostFixed = isTotalCostFixed; }
-
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
-
-    public List<Transaction> getTransactions() { return transactions; }
-    public void setTransactions(List<Transaction> transactions) { this.transactions = transactions; }
-
-    public List<MealParticipation> getParticipations() { return mealParticipationList; }
-    public void setParticipations(List<MealParticipation> participations) { this.mealParticipationList = participations; }
 }

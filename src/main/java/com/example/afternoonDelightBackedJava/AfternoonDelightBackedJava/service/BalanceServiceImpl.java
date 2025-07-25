@@ -1,6 +1,5 @@
 package com.example.afternoonDelightBackedJava.AfternoonDelightBackedJava.service;
 
-
 import com.example.afternoonDelightBackedJava.AfternoonDelightBackedJava.dto.*;
 import com.example.afternoonDelightBackedJava.AfternoonDelightBackedJava.dto.report.BalanceBulkUpdateResult;
 import com.example.afternoonDelightBackedJava.AfternoonDelightBackedJava.dto.report.BalanceReportDTO;
@@ -36,12 +35,16 @@ public class BalanceServiceImpl implements BalanceService {
     // Basic balance operations
     @Override
     public BigDecimal getEmployeeBalance(String pin) {
+        log.debug("Getting balance for employee with PIN: {}", pin);
         Employee employee = findEmployeeByPin(pin);
-        return employee.getBalance();
+        BigDecimal balance = employee.getBalance();
+        log.debug("Retrieved balance {} for employee {}", balance, pin);
+        return balance;
     }
 
     @Override
     public void updateEmployeeBalance(String pin, BigDecimal amount) {
+        log.info("Updating balance for employee {} with amount: {}", pin, amount);
         Employee employee = findEmployeeByPin(pin);
         BigDecimal oldBalance = employee.getBalance();
         BigDecimal newBalance = oldBalance.add(amount);
@@ -56,6 +59,7 @@ public class BalanceServiceImpl implements BalanceService {
 
     @Override
     public void setEmployeeBalance(String pin, BigDecimal newBalance) {
+        log.info("Setting balance for employee {} to: {}", pin, newBalance);
         Employee employee = findEmployeeByPin(pin);
         BigDecimal oldBalance = employee.getBalance();
 
@@ -69,102 +73,142 @@ public class BalanceServiceImpl implements BalanceService {
     // Range queries
     @Override
     public List<EmployeeDTO> getEmployeesWithBalanceLessThan(BigDecimal threshold) {
-        return employeeRepository.findByBalanceLessThan(threshold)
+        log.debug("Finding employees with balance less than: {}", threshold);
+        List<EmployeeDTO> employees = employeeRepository.findByBalanceLessThan(threshold)
                 .stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+        log.debug("Found {} employees with balance less than {}", employees.size(), threshold);
+        return employees;
     }
 
     @Override
     public List<EmployeeDTO> getEmployeesWithBalanceLessThanEqual(BigDecimal maxBalance) {
-        return employeeRepository.findByBalanceLessThanEqual(maxBalance)
+        log.debug("Finding employees with balance less than or equal to: {}", maxBalance);
+        List<EmployeeDTO> employees = employeeRepository.findByBalanceLessThanEqual(maxBalance)
                 .stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+        log.debug("Found {} employees with balance <= {}", employees.size(), maxBalance);
+        return employees;
     }
 
     @Override
     public List<EmployeeDTO> getEmployeesWithBalanceGreaterThan(BigDecimal threshold) {
-        return employeeRepository.findByBalanceGreaterThan(threshold)
+        log.debug("Finding employees with balance greater than: {}", threshold);
+        List<EmployeeDTO> employees = employeeRepository.findByBalanceGreaterThan(threshold)
                 .stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+        log.debug("Found {} employees with balance > {}", employees.size(), threshold);
+        return employees;
     }
 
     @Override
     public List<EmployeeDTO> getEmployeesWithBalanceGreaterThanEqual(BigDecimal minBalance) {
-        return employeeRepository.findByBalanceGreaterThanEqual(minBalance)
+        log.debug("Finding employees with balance greater than or equal to: {}", minBalance);
+        List<EmployeeDTO> employees = employeeRepository.findByBalanceGreaterThanEqual(minBalance)
                 .stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+        log.debug("Found {} employees with balance >= {}", employees.size(), minBalance);
+        return employees;
     }
 
     @Override
     public List<EmployeeDTO> getEmployeesWithBalanceBetween(BigDecimal minBalance, BigDecimal maxBalance) {
-        return employeeRepository.findByBalanceBetween(minBalance, maxBalance)
+        log.debug("Finding employees with balance between {} and {}", minBalance, maxBalance);
+        List<EmployeeDTO> employees = employeeRepository.findByBalanceBetween(minBalance, maxBalance)
                 .stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+        log.debug("Found {} employees with balance between {} and {}", employees.size(), minBalance, maxBalance);
+        return employees;
     }
 
     @Override
     public List<EmployeeDTO> getEmployeesWithExactBalance(BigDecimal exactBalance) {
-        return employeeRepository.findByBalance(exactBalance)
+        log.debug("Finding employees with exact balance: {}", exactBalance);
+        List<EmployeeDTO> employees = employeeRepository.findByBalance(exactBalance)
                 .stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+        log.debug("Found {} employees with exact balance {}", employees.size(), exactBalance);
+        return employees;
     }
 
     // Threshold operations
     @Override
     public List<EmployeeDTO> getEmployeesWithLowBalance(BigDecimal threshold) {
-        return employeeRepository.findEmployeesWithLowBalance(threshold)
+        log.info("Finding employees with low balance below threshold: {}", threshold);
+        List<EmployeeDTO> employees = employeeRepository.findEmployeesWithLowBalance(threshold)
                 .stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+        log.info("Found {} employees with low balance", employees.size());
+        return employees;
     }
 
     @Override
     public List<EmployeeDTO> getEmployeesWithHighBalance(BigDecimal threshold) {
-        return employeeRepository.findEmployeesWithHighBalance(threshold)
+        log.info("Finding employees with high balance above threshold: {}", threshold);
+        List<EmployeeDTO> employees = employeeRepository.findEmployeesWithHighBalance(threshold)
                 .stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+        log.info("Found {} employees with high balance", employees.size());
+        return employees;
     }
 
     @Override
     public List<EmployeeDTO> getActiveEmployeesInBalanceRange(BigDecimal minBalance, BigDecimal maxBalance) {
-        return employeeRepository.findActiveEmployeesByBalanceRange(minBalance, maxBalance)
+        log.debug("Finding active employees with balance between {} and {}", minBalance, maxBalance);
+        List<EmployeeDTO> employees = employeeRepository.findActiveEmployeesByBalanceRange(minBalance, maxBalance)
                 .stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+        log.debug("Found {} active employees in balance range", employees.size());
+        return employees;
     }
 
     // Aggregations and statistics
     @Override
     public BigDecimal getTotalActiveEmployeeBalances() {
+        log.debug("Calculating total active employee balances");
         BigDecimal total = employeeRepository.sumAllBalances();
-        return total != null ? total : BigDecimal.ZERO;
+        BigDecimal result = total != null ? total : BigDecimal.ZERO;
+        log.debug("Total active employee balances: {}", result);
+        return result;
     }
 
     @Override
     public BigDecimal getTotalAllEmployeeBalances() {
+        log.debug("Calculating total all employee balances (including inactive)");
         BigDecimal total = employeeRepository.sumAllBalancesIncludingInactive();
-        return total != null ? total : BigDecimal.ZERO;
+        BigDecimal result = total != null ? total : BigDecimal.ZERO;
+        log.debug("Total all employee balances: {}", result);
+        return result;
     }
 
     @Override
     public Long getEmployeesWithNegativeBalanceCount() {
-        return employeeRepository.countEmployeesWithNegativeBalance();
+        log.debug("Counting employees with negative balance");
+        Long count = employeeRepository.countEmployeesWithNegativeBalance();
+        log.debug("Found {} employees with negative balance", count);
+        return count;
     }
 
     @Override
     public Long getEmployeesWithZeroBalanceCount() {
-        return employeeRepository.countEmployeesWithZeroBalance();
+        log.debug("Counting employees with zero balance");
+        Long count = employeeRepository.countEmployeesWithZeroBalance();
+        log.debug("Found {} employees with zero balance", count);
+        return count;
     }
 
     @Override
     public BalanceStatisticsDTO getBalanceStatistics() {
+        log.info("Generating balance statistics");
         BigDecimal total = getTotalActiveEmployeeBalances();
         BigDecimal average = employeeRepository.getAverageBalance();
         BigDecimal minimum = employeeRepository.getMinimumBalance();
@@ -173,7 +217,7 @@ public class BalanceServiceImpl implements BalanceService {
         Long zeroCount = getEmployeesWithZeroBalanceCount();
         Long totalActiveEmployees = employeeRepository.countByIsActiveTrue();
 
-        return BalanceStatisticsDTO.builder()
+        BalanceStatisticsDTO stats = BalanceStatisticsDTO.builder()
                 .totalBalance(total)
                 .averageBalance(average != null ? average : BigDecimal.ZERO)
                 .minimumBalance(minimum != null ? minimum : BigDecimal.ZERO)
@@ -182,12 +226,17 @@ public class BalanceServiceImpl implements BalanceService {
                 .employeesWithZeroBalance(zeroCount)
                 .totalActiveEmployees(totalActiveEmployees)
                 .build();
+
+        log.info("Balance statistics generated - Total: {}, Average: {}, Active employees: {}",
+                total, stats.getAverageBalance(), totalActiveEmployees);
+        return stats;
     }
 
     // Bulk operations
     @Override
     @Transactional
     public BalanceBulkUpdateResult updateBalancesForEmployees(List<BalanceUpdateDTO> updates) {
+        log.info("Starting bulk balance update for {} employees", updates.size());
         List<String> successful = new ArrayList<>();
         List<String> failed = new ArrayList<>();
         BigDecimal totalAmountProcessed = BigDecimal.ZERO;
@@ -223,6 +272,7 @@ public class BalanceServiceImpl implements BalanceService {
     @Override
     @Transactional
     public BalanceBulkUpdateResult creditBalancesToEmployees(List<BalanceUpdateDTO> credits) {
+        log.info("Processing bulk credit operations for {} employees", credits.size());
         // Ensure all amounts are positive for credits
         List<BalanceUpdateDTO> positiveCredits = credits.stream()
                 .map(credit -> BalanceUpdateDTO.builder()
@@ -239,6 +289,7 @@ public class BalanceServiceImpl implements BalanceService {
     @Override
     @Transactional
     public BalanceBulkUpdateResult debitBalancesFromEmployees(List<BalanceUpdateDTO> debits) {
+        log.info("Processing bulk debit operations for {} employees", debits.size());
         // Ensure all amounts are negative for debits
         List<BalanceUpdateDTO> negativeDebits = debits.stream()
                 .map(debit -> BalanceUpdateDTO.builder()
@@ -255,12 +306,16 @@ public class BalanceServiceImpl implements BalanceService {
     // Balance adjustments and validations
     @Override
     public List<EmployeeDTO> getEmployeesRequiringBalanceAdjustment(BigDecimal minimumRequiredBalance) {
-        return getEmployeesWithBalanceLessThanEqual(minimumRequiredBalance);
+        log.info("Finding employees requiring balance adjustment to minimum: {}", minimumRequiredBalance);
+        List<EmployeeDTO> employees = getEmployeesWithBalanceLessThanEqual(minimumRequiredBalance);
+        log.info("Found {} employees requiring balance adjustment", employees.size());
+        return employees;
     }
 
     @Override
     @Transactional
     public void adjustNegativeBalancesToZero() {
+        log.info("Starting adjustment of negative balances to zero");
         List<Employee> employeesWithNegativeBalance = employeeRepository
                 .findByBalanceLessThanEqual(BigDecimal.valueOf(-0.01));
 
@@ -284,6 +339,7 @@ public class BalanceServiceImpl implements BalanceService {
     @Override
     @Transactional
     public void adjustEmployeeBalanceToMinimum(String pin, BigDecimal minimumBalance) {
+        log.info("Adjusting employee {} balance to minimum: {}", pin, minimumBalance);
         Employee employee = findEmployeeByPin(pin);
 
         if (employee.getBalance().compareTo(minimumBalance) < 0) {
@@ -294,41 +350,51 @@ public class BalanceServiceImpl implements BalanceService {
 
             log.info("Adjusted balance to minimum for employee {}: {} -> {}",
                     pin, oldBalance, minimumBalance);
+        } else {
+            log.debug("Employee {} already has balance {} above minimum {}",
+                    pin, employee.getBalance(), minimumBalance);
         }
     }
 
     // Reporting and analytics
     @Override
     public List<BalanceReportDTO> generateBalanceReport() {
+        log.info("Generating complete balance report");
         List<Employee> employees = employeeRepository.findByIsActiveTrueOrderByUsername();
-
-        return employees.stream()
+        List<BalanceReportDTO> report = employees.stream()
                 .map(this::convertToBalanceReportDTO)
                 .collect(Collectors.toList());
+        log.info("Generated balance report for {} active employees", report.size());
+        return report;
     }
 
     @Override
     public List<BalanceReportDTO> generateBalanceReportByRange(BigDecimal minBalance, BigDecimal maxBalance) {
+        log.info("Generating balance report for range {} to {}", minBalance, maxBalance);
         List<Employee> employees = employeeRepository.findActiveEmployeesByBalanceRange(minBalance, maxBalance);
-
-        return employees.stream()
+        List<BalanceReportDTO> report = employees.stream()
                 .map(this::convertToBalanceReportDTO)
                 .collect(Collectors.toList());
+        log.info("Generated balance report for {} employees in range", report.size());
+        return report;
     }
 
     @Override
     public List<BalanceReportDTO> generateNegativeBalanceReport() {
+        log.info("Generating negative balance report");
         List<Employee> employees = employeeRepository.findEmployeesWithLowBalance(BigDecimal.ZERO);
-
-        return employees.stream()
+        List<BalanceReportDTO> report = employees.stream()
                 .filter(emp -> emp.getBalance().compareTo(BigDecimal.ZERO) < 0)
                 .map(this::convertToBalanceReportDTO)
                 .collect(Collectors.toList());
+        log.info("Generated negative balance report for {} employees", report.size());
+        return report;
     }
 
     // Balance history and transactions (placeholder methods - would need transaction history)
     @Override
     public BigDecimal calculateTotalDeductions(String pin) {
+        log.debug("Calculating total deductions for employee: {}", pin);
         // This would typically query transaction history
         // For now, returning zero as placeholder
         return BigDecimal.ZERO;
@@ -336,6 +402,7 @@ public class BalanceServiceImpl implements BalanceService {
 
     @Override
     public BigDecimal calculateTotalCredits(String pin) {
+        log.debug("Calculating total credits for employee: {}", pin);
         // This would typically query transaction history
         // For now, returning zero as placeholder
         return BigDecimal.ZERO;
@@ -344,25 +411,35 @@ public class BalanceServiceImpl implements BalanceService {
     // Validation methods
     @Override
     public boolean hasNegativeBalance(String pin) {
+        log.trace("Checking if employee {} has negative balance", pin);
         Employee employee = findEmployeeByPin(pin);
-        return employee.getBalance().compareTo(BigDecimal.ZERO) < 0;
+        boolean hasNegative = employee.getBalance().compareTo(BigDecimal.ZERO) < 0;
+        log.trace("Employee {} negative balance check: {}", pin, hasNegative);
+        return hasNegative;
     }
 
     @Override
     public boolean hasSufficientBalance(String pin, BigDecimal requiredAmount) {
+        log.trace("Checking if employee {} has sufficient balance for amount: {}", pin, requiredAmount);
         Employee employee = findEmployeeByPin(pin);
-        return employee.getBalance().compareTo(requiredAmount) >= 0;
+        boolean hasSufficient = employee.getBalance().compareTo(requiredAmount) >= 0;
+        log.trace("Employee {} sufficient balance check: {} (current: {})",
+                pin, hasSufficient, employee.getBalance());
+        return hasSufficient;
     }
 
     @Override
     public void validateBalanceOperation(String pin, BigDecimal amount) {
+        log.debug("Validating balance operation for employee {} with amount: {}", pin, amount);
         Employee employee = findEmployeeByPin(pin);
 
         if (!employee.getIsActive()) {
+            log.warn("Attempted balance operation on inactive employee: {}", pin);
             throw new IllegalStateException("Cannot perform balance operation on inactive employee: " + pin);
         }
 
         if (isBalanceFrozen(pin)) {
+            log.warn("Attempted balance operation on frozen account: {}", pin);
             throw new IllegalStateException("Balance is frozen for employee: " + pin);
         }
 
@@ -370,15 +447,18 @@ public class BalanceServiceImpl implements BalanceService {
         if (amount.compareTo(BigDecimal.ZERO) < 0) {
             BigDecimal resultingBalance = employee.getBalance().add(amount);
             if (resultingBalance.compareTo(new BigDecimal("-1000")) < 0) {
+                log.warn("Balance operation would result in balance below minimum threshold for employee: {}", pin);
                 throw new IllegalArgumentException("Operation would result in balance below minimum threshold for employee: " + pin);
             }
         }
+        log.debug("Balance operation validation passed for employee: {}", pin);
     }
 
     // Administrative operations
     @Override
     @Transactional
     public void freezeEmployeeBalance(String pin) {
+        log.info("Freezing balance for employee: {}", pin);
         Employee employee = findEmployeeByPin(pin);
         // This would typically set a flag in the database
         // For now, we'll add a note or use an existing field
@@ -388,6 +468,7 @@ public class BalanceServiceImpl implements BalanceService {
     @Override
     @Transactional
     public void unfreezeEmployeeBalance(String pin) {
+        log.info("Unfreezing balance for employee: {}", pin);
         Employee employee = findEmployeeByPin(pin);
         // This would typically unset a flag in the database
         log.info("Balance unfrozen for employee: {}", pin);
@@ -395,6 +476,7 @@ public class BalanceServiceImpl implements BalanceService {
 
     @Override
     public boolean isBalanceFrozen(String pin) {
+        log.trace("Checking if balance is frozen for employee: {}", pin);
         // This would typically check a flag in the database
         // For now, returning false as placeholder
         return false;
@@ -402,15 +484,21 @@ public class BalanceServiceImpl implements BalanceService {
 
     // Helper methods
     private Employee findEmployeeByPin(String pin) {
+        log.trace("Finding employee by PIN: {}", pin);
         return employeeRepository.findByPin(pin)
-                .orElseThrow(() -> new EntityNotFoundException("Employee not found with PIN: " + pin));
+                .orElseThrow(() -> {
+                    log.error("Employee not found with PIN: {}", pin);
+                    return new EntityNotFoundException("Employee not found with PIN: " + pin);
+                });
     }
 
     private EmployeeDTO convertToDTO(Employee employee) {
+        log.trace("Converting employee {} to DTO", employee.getPin());
         return modelMapper.map(employee, EmployeeDTO.class);
     }
 
     private BalanceReportDTO convertToBalanceReportDTO(Employee employee) {
+        log.trace("Converting employee {} to balance report DTO", employee.getPin());
         return BalanceReportDTO.builder()
                 .pin(employee.getPin())
                 .username(employee.getUsername())

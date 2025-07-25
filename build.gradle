@@ -29,6 +29,11 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
 	implementation 'org.modelmapper:modelmapper:3.2.0'
+	// Apache POI for working with Excel files
+	implementation 'org.apache.poi:poi:5.2.5'                 // For XLS files
+	implementation 'org.apache.poi:poi-ooxml:5.2.5'           // For XLSX files
+//	implementation 'org.springframework.boot:spring-boot-starter-security'
+
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'org.postgresql:postgresql'
 	annotationProcessor 'org.projectlombok:lombok'
